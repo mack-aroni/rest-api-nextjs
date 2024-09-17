@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
 import connect from "@/lib/db"
 import User from "@/lib/modals/users";
 import {Types} from "mongoose"
+import { NextResponse } from "next/server"
 
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -12,7 +12,10 @@ export const GET = async () => {
     const users = await User.find();
     return new NextResponse(JSON.stringify(users), {status: 200})
   } catch (err: any) {
-    return new NextResponse("Error in fetching Users" + err.message, {status: 500});
+    return new NextResponse(
+      "Error in fetching Users" + err.message,
+      {status: 500}
+    );
   }
 }
 
@@ -27,7 +30,7 @@ export const POST = async (request: Request) => {
     return new NextResponse(
       JSON.stringify({message: "User is created", user: newUser}),
         {status: 200}
-      );
+    );
   } catch (err: any) {
     return new NextResponse("Error in creating User" + err.message, {status: 500});
   }
@@ -63,7 +66,7 @@ export const PATCH = async (request: Request) => {
     if (!updatedUser) {
       return new NextResponse(
         JSON.stringify({message: "User not found"}),
-        {status:400}
+        {status:404}
       );
     }
 
@@ -107,7 +110,7 @@ export const DELETE = async (request: Request) => {
     if (!deletedUser) {
       return new NextResponse(
         JSON.stringify({message: "User not found"}),
-        {status:400}
+        {status:404}
       );
     }
     
