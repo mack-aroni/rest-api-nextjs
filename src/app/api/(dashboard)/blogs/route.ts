@@ -4,7 +4,6 @@ import Category from "@/lib/modals/category"
 import Blog from "@/lib/modals/blog"
 import {Types} from "mongoose"
 import { NextResponse } from "next/server"
-import { describe } from "node:test";
 
 export const GET = async (request: Request) => {
   try {
