@@ -3,8 +3,6 @@ import User from "@/lib/models/users";
 import { Types } from "mongoose"
 import { NextResponse } from "next/server"
 
-const ObjectId = Types.ObjectId;
-
 /*
   GET request for User models
 */
