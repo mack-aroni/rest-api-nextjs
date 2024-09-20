@@ -1,6 +1,6 @@
 # REST-API-NextJS
 Created a REST API using NextJS backend and a MongoDB database </br>
-There is no frontend at the moment and all interaction is through the URL
+There is no frontend at the moment and all interaction is through the URL </br>
 Deployed on Vercel at https://emach-restapi-nextjs.vercel.app
 
 # Functionality
