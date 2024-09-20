@@ -1,5 +1,11 @@
-import {Schema, model, models} from "mongoose";
+import { Schema, model, models } from "mongoose";
 
+/*
+  UserSchema for User model contains:
+    email: required unique string
+    username: required unique string
+    password: required string
+*/
 const UserSchema = new Schema(
   {
     email: {type: "string", required: true, unique: true},

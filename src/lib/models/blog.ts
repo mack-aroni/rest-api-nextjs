@@ -1,5 +1,12 @@
-import {Schema, model, models} from "mongoose";
+import { Schema, model, models } from "mongoose";
 
+/* 
+  BlogSchema for Blog model contains:
+    title: required string
+    description: required string
+    user: relationship with User model
+    category: relationship with Category model
+*/
 const BlogSchema = new Schema (
   {
     title: {type: "string", required: true},

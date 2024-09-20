@@ -1,22 +1,28 @@
 import connect from "@/lib/db"
-import User from "@/lib/modals/users";
-import Category from "@/lib/modals/category"
-import Blog from "@/lib/modals/blog"
-import {Types} from "mongoose"
+import User from "@/lib/models/users";
+import Category from "@/lib/models/category"
+import Blog from "@/lib/models/blog"
+import { Types } from "mongoose"
 import { NextResponse } from "next/server"
 
+/*
+  GET request for Blog models: For listing multiple Blogs
+*/
 export const GET = async (request: Request) => {
   try {
-    const {searchParams} = new URL(request.url);
+    // userId and categoryId stored as url parameters
+    const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const categoryId = searchParams.get("categoryId");
 
+    // additional parameters for filtering stored as URL parameters
     const searchKeywords = searchParams.get("keywords") as string;
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const page = parseInt(searchParams.get("page") || "1");
     const pageLimit = parseInt(searchParams.get("page") || "10");
 
+    // checks for presence and validity of userId
     if (!userId || !Types.ObjectId.isValid(userId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing userId"}),
@@ -24,6 +30,7 @@ export const GET = async (request: Request) => {
       );
     }
 
+    // checks for presence and validity of categoryId
     if (!categoryId || !Types.ObjectId.isValid(categoryId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing categoryId"}),
@@ -31,8 +38,10 @@ export const GET = async (request: Request) => {
       );
     }
 
+    // make database connection
     await connect();
 
+    // find and validite presence of User by userId
     const user = await User.findById(userId);
     if (!user) {
       return new NextResponse(
@@ -41,7 +50,8 @@ export const GET = async (request: Request) => {
       );
     }
 
-    const category = await Category.findOne({_id: categoryId, user: userId })
+    // find and validate presence of Category by categoryId and userId
+    const category = await Category.findOne({_id: categoryId, user: userId})
     if (!category) {
       return new NextResponse(
         JSON.stringify({message: "Category not found"}),
@@ -49,11 +59,13 @@ export const GET = async (request: Request) => {
       );
     }
 
+    // creates filter of userId and categoryId
     const filter: any = {
-      user: new Types.ObjectId(userId),
-      category: new Types.ObjectId(categoryId),
+      user: userId,
+      category: categoryId,
     }
 
+    // adds filter for keyword searches if present
     if (searchKeywords) {
       filter.$or = [
         {title: {$regex: searchKeywords, $options: "i"}},
@@ -61,6 +73,8 @@ export const GET = async (request: Request) => {
       ]
     }
 
+    // adds filter for date ranges if present
+    // (between dates, after date, before date)
     if (startDate && endDate) {
       filter.createdAt = {
         $gte: new Date(startDate),
@@ -76,13 +90,16 @@ export const GET = async (request: Request) => {
       }
     }
 
+    // function for pagination
     const skip = (page - 1) * pageLimit;
 
+    // finds all Blogs matching filters, if None returns []
     const blogs = await Blog.find(filter)
                             .sort({createdAt: "asc"})
                             .skip(skip)
                             .limit(pageLimit);
     
+    // return successful request message
     return new NextResponse(
       JSON.stringify({blogs}),
       {status: 200}
@@ -95,15 +112,21 @@ export const GET = async (request: Request) => {
   }
 }
 
+/*
+  POST request for Blog model
+*/
 export const POST = async (request: Request) => {
   try {
-    const {searchParams} = new URL(request.url);
+    // Blog title and description are stored in request body json
+    const body = await request.json()
+    const { title, description } = body
+
+    // userId and categoryId stored as url parameters
+    const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const categoryId = searchParams.get("categoryId");
 
-    const body = await request.json()
-    const {title, description} = body
-
+    // checks for presence and validity of userId
     if (!userId || !Types.ObjectId.isValid(userId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing userId"}),
@@ -111,6 +134,7 @@ export const POST = async (request: Request) => {
       );
     }
 
+    // checks for presence and validity of categoryId
     if (!categoryId || !Types.ObjectId.isValid(categoryId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing categoryId"}),
@@ -118,8 +142,10 @@ export const POST = async (request: Request) => {
       );
     }
 
+    // make database connection
     await connect();
 
+    // find and validite presence of User by userId
     const user = await User.findById(userId);
     if (!user) {
       return new NextResponse(
@@ -127,7 +153,8 @@ export const POST = async (request: Request) => {
         {status:404}
       );
     }
-
+    
+    // find and validate presence of Category by categoryId and userId
     const category = await Category.findOne({_id: categoryId, user: userId })
     if (!category) {
       return new NextResponse(
@@ -136,13 +163,16 @@ export const POST = async (request: Request) => {
       );
     }
 
+    // create new Blog with all required data and saves to database
     const newBlog = new Blog({
       title,
       description,
-      user: new Types.ObjectId(userId),
-      category: new Types.ObjectId(categoryId)
-    })
+      user: userId,
+      category: categoryId
+    });
     await newBlog.save();
+
+    // return successful request message
     return new NextResponse(
       JSON.stringify(
         {message: "Blog is created", blog: newBlog}),

@@ -1,14 +1,19 @@
 import connect from "@/lib/db"
-import User from "@/lib/modals/users";
-import Category from "@/lib/modals/category"
-import {Types} from "mongoose"
+import User from "@/lib/models/users";
+import Category from "@/lib/models/category"
+import { Types } from "mongoose"
 import { NextResponse } from "next/server"
 
+/*
+  GET request for Category models
+*/
 export const GET = async (request: Request) => {
   try {
-    const {searchParams} = new URL(request.url);
+    // userId stored as URL parameter
+    const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 
+    // checks for presence and validity of userId
     if (!userId || !Types.ObjectId.isValid(userId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing userId"}),
@@ -16,8 +21,10 @@ export const GET = async (request: Request) => {
       );
     }
 
+    // make database connection
     await connect();
 
+    // find and validite presence of User by userId
     const user = await User.findById(userId);
     if (!user) {
       return new NextResponse(
@@ -26,9 +33,10 @@ export const GET = async (request: Request) => {
       );
     }
 
-    const categories = await Category.find({
-      user: new Types.ObjectId(userId),
-    });
+    // find Cateogry by userId
+    const categories = await Category.find({userId});
+
+    // return successful request message
     return new NextResponse(
       JSON.stringify(categories),
       {status: 200}
@@ -42,13 +50,19 @@ export const GET = async (request: Request) => {
   }
 }
 
+/*
+  POST request for Category model
+*/
 export const POST = async (request: Request) => {
   try {
-    const {searchParams} = new URL(request.url);
+    // userId stored as URL parameter
+    const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 
-    const {title} = await request.json();
+    // Category title stored in request body json
+    const { title } = await request.json();
 
+    // checks for presence and validity of userId
     if (!userId || !Types.ObjectId.isValid(userId)) {
       return new NextResponse(
         JSON.stringify({message: "Invalid or missing userId"}),
@@ -56,8 +70,10 @@ export const POST = async (request: Request) => {
       );
     }
 
+    // make database connection
     await connect();
 
+    // find and validite presence of User by userId
     const user = await User.findById(userId);
     if (!user) {
       return new NextResponse(
@@ -66,12 +82,14 @@ export const POST = async (request: Request) => {
       );
     }
 
+    // create new Category with title and saves to database
     const newCategory = new Category({
       title,
-      user: new Types.ObjectId(userId),
+      user: userId,
     });
-
     await newCategory.save();
+
+    // return successful request message
     return new NextResponse(
       JSON.stringify({
         message: "Category is created", 
