@@ -2,11 +2,11 @@ import {Schema, model, models} from "mongoose";
 
 const CategorySchema = new Schema (
   {
-    title: {type: String, required: true},
+    title: {type: "string", required: true},
     user: {type: Schema.Types.ObjectId, ref: "User"},
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

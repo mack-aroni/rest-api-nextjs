@@ -19,7 +19,6 @@ export const GET = async (request: Request) => {
     await connect();
 
     const user = await User.findById(userId);
-
     if (!user) {
       return new NextResponse(
         JSON.stringify({message: "User not found"}),
@@ -30,7 +29,6 @@ export const GET = async (request: Request) => {
     const categories = await Category.find({
       user: new Types.ObjectId(userId),
     });
-
     return new NextResponse(
       JSON.stringify(categories),
       {status: 200}
@@ -38,7 +36,7 @@ export const GET = async (request: Request) => {
 
   } catch (err: any) {
     return new NextResponse(
-      "Error in fetching categories" + err.message,
+      "Error in fetching categories: " + err.message,
       {status:500}
     );
   }
@@ -61,7 +59,6 @@ export const POST = async (request: Request) => {
     await connect();
 
     const user = await User.findById(userId);
-
     if (!user) {
       return new NextResponse(
         JSON.stringify({message: "User not found"}),
@@ -75,14 +72,16 @@ export const POST = async (request: Request) => {
     });
 
     await newCategory.save();
-
     return new NextResponse(
-      JSON.stringify({message: "Category is created", category: newCategory}),
-        {status: 200}
+      JSON.stringify({
+        message: "Category is created", 
+        category: newCategory,
+      }),
+      {status: 200}
     );
   } catch (err: any) {
     return new NextResponse(
-      "Error in creating category" + err.message,
+      "Error in creating category: " + err.message,
       {status:500}
     );
   }
