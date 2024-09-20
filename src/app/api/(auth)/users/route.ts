@@ -3,7 +3,7 @@ import User from "@/lib/modals/users";
 import {Types} from "mongoose"
 import { NextResponse } from "next/server"
 
-const ObjectId = require("mongoose").Types.ObjectId;
+const ObjectId = Types.ObjectId;
 
 export const GET = async () => {
   try {
