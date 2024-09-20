@@ -33,8 +33,8 @@ export const GET = async (request: Request) => {
       );
     }
 
-    // find Cateogry by userId
-    const categories = await Category.find({userId});
+    // find Category by userId
+    const categories = await Category.find({user: userId});
 
     // return successful request message
     return new NextResponse(
