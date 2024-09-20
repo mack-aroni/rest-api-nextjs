@@ -38,7 +38,7 @@ export const GET = async (request: Request) => {
 
     // return successful request message
     return new NextResponse(
-      JSON.stringify(categories),
+      JSON.stringify({categories}),
       {status: 200}
     );
 
